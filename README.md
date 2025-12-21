@@ -6,7 +6,7 @@ An end-to-end pipeline that uses Retrieval-Augmented Generation (RAG), Sentence 
 
 Recruiters and hiring managers often review hundreds of resumes manually which is tedious task. This agent extracts the information that actually matters to hiring teams and returns information based on query. 
 
-## GOAL;
+## GOAL:
 
 Serve Hiring Managers and Recruiters across functions (Engineering, Global Functions, Professional Services, etc.).
 Let users query large resume sets by skills, experience, and team fit.
