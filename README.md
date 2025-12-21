@@ -44,7 +44,7 @@ Reduce time-to-screen by surfacing the most relevant candidates and summaries.
 
 4. Re-rank: using cross-encoder (cross-encoder/ms-marco-MiniLM-L-6-v2) for re-scores.
 
-5. Prompt: build_prompt(context, query) adds rules/indtructions + top chunks.
+5. Prompt: build_prompt(context, query) adds rules/instructions + top chunks.
 
 6. Generate: call Databricks Llama endpoint with max_tokens limit.
 
@@ -57,10 +57,9 @@ Reduce time-to-screen by surfacing the most relevant candidates and summaries.
 
 <img width="852" height="130" alt="Screenshot 2025-11-06 at 16 00 45" src="https://github.com/user-attachments/assets/c6c54f71-4c18-4c74-9086-f6d29a68dccf" />
 
-
 <img width="985" height="289" alt="Screenshot 2025-11-06 at 16 00 39" src="https://github.com/user-attachments/assets/4ed11558-2f28-4749-ac75-071ddf59fe08" />
 
-The Output and revelancy can be improved using meta-data filtering, BM25 and Indexing. (**Working on it**)
+The Output and revelancy can be improved using meta-data filtering, BM25 and Indexing.
 
 ---
 
