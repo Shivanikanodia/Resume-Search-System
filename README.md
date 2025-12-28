@@ -1,10 +1,13 @@
-### AI Agent (RAG + LLM) - Generates Summaries of 100+ Resume in less then 20 seconds. 
+### AI POWERED RESUME RANKING SYSTEM: 
 
-An end-to-end pipeline that uses Retrieval-Augmented Generation (RAG), Sentence Transformers, Re-ranking and an LLM to generate concise, role aware candidate resume summaries.
+An end-to-end semantic resume search and ranking system that matches resumes to hiring queries using vector search, cross-encoder reranking, and optional LLM summarization.
+
+This project mirrors production-grade hiring intelligence systems by cleanly separating offline indexing from online inference.
 
 ## PROBLEM:
 
-Recruiters and hiring managers often review hundreds of resumes manually which is tedious task. This agent extracts the information that actually matters to hiring teams and returns information based on query. 
+- Recruiters often screen hundreds of resumes manually using keyword search, which is slow, inconsistent, biased toward wording rather than meaning
+- This project solves that by: understanding semantic similarity, ranking candidates, not keywords and providing concise AI-generated summaries for decision support.
 
 ## GOAL:
 
@@ -16,68 +19,167 @@ Reduce time-to-screen by surfacing the most relevant candidates and summaries.
 
 ### How It Works (Architecture)
 
-1. **Data Loading:** Read resumes stored in Unity Catalog Volumes. (Can be integrated with ATS like greenhouse, workday or Oracle Taleo to fetch resumes in real time)
-
-2. **Chunking & Embeddings:** Split resumes into ~800-character chunks, 
-
-3. **Embedding with all-MiniLM-L6-v2 (384-dim) via SentenceTransformer.** Uses high dimentionality vectors, ensures relevant context and information. 
-
-4. **Semantic Retrieval (Recall):** Cosine similarity over embeddings to fetch top-k relevant chunks. 
-
-5. **Re-ranking (Precision):** Cross-encoder scores (query, chunk) pairs and reorders the retrieved set to keep the most relevant passages.
-
-6. **Prompt Construction:** Insert top chunks into a concise, instruction-driven prompt with rules/constraints (focusing on role fit, impact, skills (Hiring Manger Expectations).
-
-7. **LLM Generation:** Call Databricks-hosted Llama endpoint to produce the final summary and answers. 
-
-8. **Evaluation & Observability:** Track latency, error rate and  retrieval quality. 
- 
+Offline (Run Once)
+Resumes
+→ Read & Chunk
+→ Anonymize PII
+→ Generate Embeddings
+→ Build FAISS Index
+→ Store Metadata
+---
+Online (Every Query)
+User Query
+→ Vector Search (FAISS)
+→ Resume-level Aggregation
+→ Cross-Encoder Re-Ranking
+→ (Optional) LLM Summarization
+→ Streamlit UI
 ---
 
-#### Project Structure:
+#### Key Design Principles
 
-1. Read & Chunking: read_chunk_resume() splits text → list of chunks.
+1️⃣ Offline vs Online Separation:
 
-2. Embeddings: SentenceTransformer("all-MiniLM-L6-v2").encode(chunks) → vectors.
+Index construction is compute-heavy and runs once
 
-3. Retrieve: cosine similarity to get top-k chunks.
+Query-time inference is fast and lightweight
 
-4. Re-rank: using cross-encoder (cross-encoder/ms-marco-MiniLM-L-6-v2) for re-scores.
+Prevents recomputation and improves scalability
 
-5. Prompt: build_prompt(context, query) adds rules/instructions + top chunks.
+2️⃣ Deterministic Ranking, Generative Summaries:
 
-6. Generate: call Databricks Llama endpoint with max_tokens limit.
+Ranking is driven by retrieval + reranking
 
-7. Log: latency, errors, rank metrics, token usage.
+LLMs are used only for post-hoc summarization
 
+Avoids hallucinations and keeps decisions explainable
+
+3️⃣ Privacy-First Design:
+
+Names, emails, and phone numbers are removed before embedding
+
+Prevents sensitive data from entering vector space
    
 ---
+
+Resume_Ranking_System/
+│
+├── data/
+│   └── resumes/              # Input resumes (.txt, extendable to PDF/DOCX)
+│
+├── resume_index/             # Generated offline
+│   ├── faiss.index
+│   ├── chunk_meta.pkl
+│   └── resume_meta.pkl
+│
+├── preprocessing.py          # Resume reading, chunking, anonymization
+├── build_index.py            # Offline FAISS index builder
+├── app.py                    # Streamlit app (online inference)
+└── README.md
+
 
 **Model Output** and **Evaluation Metrics:**::
 
 <img width="852" height="130" alt="Screenshot 2025-11-06 at 16 00 45" src="https://github.com/user-attachments/assets/c6c54f71-4c18-4c74-9086-f6d29a68dccf" />
 
-<img width="985" height="289" alt="Screenshot 2025-11-06 at 16 00 39" src="https://github.com/user-attachments/assets/4ed11558-2f28-4749-ac75-071ddf59fe08" />
+---
 
-The Output and revelancy can be improved using meta-data filtering, BM25 and Indexing.
+## Technology Stack
+
+Python 3.10
+FAISS – fast vector similarity search
+Sentence-Transformers – semantic embeddings
+Cross-Encoder (MiniLM) – reranking for precision
+Streamlit – interactive UI
+Ollama (Llama 3) – optional local LLM for summarization
 
 ---
 
-**Instructions to Run:**
+## Setup Instructions (Local)
+1️⃣ Create Environment
+conda create -n resume_rank python=3.10
+conda activate resume_rank
 
-**Backend (Databricks + Python)** 
+2️⃣ Install Dependencies
+conda install -c pytorch faiss-cpu
+python -m pip install sentence-transformers streamlit requests numpy
 
-Create a Databricks token and Llama endpoint (model serving).
+###  Step 1: Build the Index (Offline)
 
-**Install deps:**
+Place resumes inside:
+data/resumes/
 
-pip install sentence-transformers torch requests faiss-cpu
+Run:
+python build_index.py
 
-**Configure environment variables:**
+This generates:
 
-DATABRICKS_HOST, DATABRICKS_TOKEN, LLM_ENDPOINT (your model serving URL)
+resume_index/
+├── faiss.index
+├── chunk_meta.pkl
+└── resume_meta.pkl
 
-Load resumes, Change path your specified path location, run embedding + index build, then start the API script that calls the Llama endpoint
+This step is executed only when resumes change.
+
+### Step 2: Run the Application (Online)
+Start the local LLM (optional but recommended)
+ollama pull llama3
+ollama serve
+
+Launch the Streamlit app
+python -m streamlit run app.py
+
+### Open the browser and enter queries like:
+
+Data analyst with Python, SQL, and Tableau experience
+
+----
+
+### What Happens During a Search:
+
+- Query Embedding
+- Query is converted to a vector
+- FAISS Vector Search
+- Retrieves semantically similar resume chunks
+- Resume-Level Aggregation
+- Prevents longer resumes from dominating
+- Cross-Encoder Re-Ranking
+- Improves final ordering accuracy
+- Optional LLM Summarization
+- Generates structured, concise summaries
+- Uses only top-ranked content
+- Transparent relevance scores
+
+## Scoring Explained:
+
+Semantic Match (FAISS)
+Cosine similarity 
+Final Relevance (Cross-Encoder)
+Stronger signal used for final ordering.
+
+Scores are relative, not absolute — ranking quality matters more than raw values.
+
+## Business Impact:
+1. Faster Hiring
+
+Reduces resume screening time from hours to seconds
+
+2. Better Candidate Quality:
+
+Finds strong matches beyond keyword overlap
+
+3. Reduced Bias
+
+Anonymization removes identity-based signals
+
+4. Scalable
+
+Works for tens or thousands of resumes
+
+5. Trustworthy AI
+
+LLM does not make decisions
+Used only for summarization and explanation
 
 ---
 
