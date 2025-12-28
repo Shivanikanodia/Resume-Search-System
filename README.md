@@ -70,7 +70,7 @@ Prevents sensitive data from entering vector space
 
 **Streamlit UI**
 
-<img width="1186" height="1578" alt="image" src="https://github.com/user-attachments/assets/8ba66325-5954-4a21-9c9d-b526b687b798" />
+<img width="593" height="789" alt="New" src="https://github.com/user-attachments/assets/9a6a91b7-840c-403a-8567-999ef2b51263" />
 
 ---
 
