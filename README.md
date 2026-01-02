@@ -19,7 +19,7 @@ Reduce time-to-screen by surfacing the most relevant candidates and summaries.
 
 ### How It Works (Architecture)
 
-Offline (Run Once)
+PHASE 1: Offline (Run Once)
 Resumes
 → Read & Chunk
 → Anonymize PII
@@ -27,7 +27,7 @@ Resumes
 → Build FAISS Index
 → Store Metadata
 ---
-Online (Every Query)
+PHASE 2: Online (Every Query)
 User Query
 → Vector Search (FAISS)
 → Resume-level Aggregation
