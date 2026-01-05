@@ -6,8 +6,8 @@ This project mirrors production-grade hiring intelligence systems by cleanly sep
 
 ## PROBLEM:
 
-- Recruiters often screen hundreds of resumes manually using keyword search, which is slow, inconsistent, biased toward wording rather than meaning
-- This project solves that by: understanding semantic similarity, ranking candidates, not keywords and providing concise AI-generated summaries for decision support.
+Recruiters often screen hundreds of resumes manually using keyword search, which is slow and time taking process. 
+This project solves that by understanding semantic similarity, not only keywords, rank them and provides concise AI-generated summaries for recruiter decision support.
 
 ## GOAL:
 
