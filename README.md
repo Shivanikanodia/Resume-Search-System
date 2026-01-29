@@ -90,9 +90,9 @@ Prevents sensitive data from entering vector space
 conda create -n resume_rank python=3.10
 conda activate resume_rank
 
-2️⃣ Install Dependencies
-conda install -c pytorch faiss-cpu
-python -m pip install sentence-transformers streamlit requests numpy
+2️⃣ Install Dependencies:
+
+pip install -r requirements.txt
 
 ###  Step 1: Build the Index (Offline)
 
